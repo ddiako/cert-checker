@@ -61,9 +61,6 @@ In HTML mode and sending the result to an email:
 ```bash
 ./cert-checker.sh -f sitelist -o html -m mail@example.com
 ```
-Checking our email we will see:
-
-![screenshot from 2018-02-11 20-30-11](https://user-images.githubusercontent.com/12804701/36078161-891bb566-0f73-11e8-984c-1cd65127a8e4.png)
 
 Also in HTML mode and sending the result to a slack channel:
 ```bash
