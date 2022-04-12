@@ -70,20 +70,20 @@ html_mode(){
 		port=$(echo $site | cut -d ":" -f2)
         	timeout $timeout bash -c "(cat < /dev/null > /dev/tcp/$sitename/$port) 2>> $errlog_file"
 		if [ "$?" = 0 ];then
-                        reachable=True
-                else
-                        # Retry after 2 sec (maybe a network congestion)
-                        sleep 2
-                        timeout $timeout bash -c "(cat < /dev/null > /dev/tcp/$sitename/$port) 2>> $errlog_file"
-                        if [ "$?" = 0 ];then
-                                reachable=True
-                        else
-                                reachable=False
-                        fi
-                fi
-                if [ "$reachable" ];then
-                	HOST_CHECK_COMMAND="openssl s_client -servername ${sitename} -connect ${site}"
-			HOST_CHECK=$(echo | ${HOST_CHECK_COMMAND} 2>&- | openssl x509 -noout -subject -startdate -enddate -issuer)
+            reachable=True
+        else
+            # Retry after 2 sec (maybe a network congestion)
+            sleep 2
+            timeout $timeout bash -c "(cat < /dev/null > /dev/tcp/$sitename/$port) 2>> $errlog_file"
+            if [ "$?" = 0 ];then
+                reachable=True
+            else
+                reachable=False
+            fi
+        fi
+        if [ "$reachable" ];then
+            HOST_CHECK_COMMAND="openssl s_client -servername ${sitename} -connect ${site}"
+			HOST_CHECK=$(echo | ${HOST_CHECK_COMMAND} 2>&- | openssl x509 -noout -subject -startdate -enddate -issuer 2>> ${errlog_file})
 			certificate_last_day=$(echo "$HOST_CHECK" | grep "notAfter" | cut -d "=" -f2-)
 			echo -e "Site: $sitename\nNot after: $certificate_last_day"
 			certificate_issued=$(echo "$HOST_CHECK" | grep "notBefore" | cut -d "=" -f2-)
@@ -93,7 +93,17 @@ html_mode(){
 			end_date=$(date +%s -d "$certificate_last_day")
 			days_left=$(((end_date - current_date) / 86400))
 
-			if [ "$days_left" -gt "$warning_days" ];then
+			if [ -z "$certificate_last_day" ];then
+				echo "<tr style=\"padding: 8px;text-align: left;font-family: 'Helvetica Neue', sans-serif;\">" >> $html_file
+                echo "<td style=\"padding: 8px;background-color: #999493;\">${sitename}</td>" >> $html_file
+                echo "<td style=\"padding: 8px;background-color: #999493;\">n/a</td>" >> $html_file
+                echo "<td style=\"padding: 8px;background-color: #999493;\">n/a</td>" >> $html_file
+                echo "<td style=\"padding: 8px;background-color: #999493;\">n/a</td>" >> $html_file
+                echo "<td style=\"padding: 8px;background-color: #999493;\">Cannot read certificate</td>" >> $html_file
+                echo "<td style=\"padding: 8px;background-color: #999493;\">n/a</td>" >> $html_file
+                echo "</tr>" >> $html_file
+ 
+			elif [ "$days_left" -gt "$warning_days" ];then
 				echo "<tr style=\"padding: 8px;text-align: left;font-family: 'Helvetica Neue', sans-serif;\">" >> $html_file
 				echo "<td style=\"padding: 8px;background-color: #33FF4F;\">${sitename}</td>" >> $html_file
 				echo "<td style=\"padding: 8px;background-color: #33FF4F;\">${certificate_issued}</td>" >> $html_file
@@ -139,7 +149,7 @@ html_mode(){
 			echo "<td style=\"padding: 8px;background-color: #999493;\">n/a</td>" >> $html_file
 			echo "<td style=\"padding: 8px;background-color: #999493;\">n/a</td>" >> $html_file
 			echo "<td style=\"padding: 8px;background-color: #999493;\">n/a</td>" >> $html_file
-			echo "<td style=\"padding: 8px;background-color: #999493;\">Unknown</td>" >> $html_file
+			echo "<td style=\"padding: 8px;background-color: #999493;\">Not reachable</td>" >> $html_file
 			echo "<td style=\"padding: 8px;background-color: #999493;\">n/a</td>" >> $html_file
 			echo "</tr>" >> $html_file
 		fi
@@ -159,29 +169,33 @@ terminal_mode(){
 	while read site;do
 		sitename=$(echo $site | cut -d ":" -f1)
 		port=$(echo $site | cut -d ":" -f2)
-		timeout $timeout bash -c "cat < /dev/null > /dev/tcp/$sitename/$port 2>> $errlog_file"
+        timeout $timeout bash -c "(cat < /dev/null > /dev/tcp/$sitename/$port) 2>> $errlog_file"
 		if [ "$?" = 0 ];then
-                        reachable=True
-                else
-                        # Retry after 2 sec (maybe a network congestion)
-                        sleep 2
-                        timeout $timeout bash -c "(cat < /dev/null > /dev/tcp/$sitename/$port) 2>> $errlog_file"
-                        if [ "$?" = 0 ];then
-                                reachable=True
-                        else
-                                reachable=False
-                        fi
-                fi
-                if [ "$reachable" ];then
-			HOST_CHECK_COMMAND="openssl s_client -servername ${sitename} -connect ${site}"
-                        HOST_CHECK=$(echo | ${HOST_CHECK_COMMAND} 2>&- | openssl x509 -noout -subject -startdate -enddate -issuer)
-			certificate_last_day=$(echo "$HOST_CHECK" | grep "notAfter" | cut -d "=" -f2-)
-                        certificate_issued=$(echo "$HOST_CHECK" | grep "notBefore" | cut -d "=" -f2-)
-                        issuer=$(echo "$HOST_CHECK" | grep "issuer" | cut -d "=" -f2-)
-                        end_date=$(date +%s -d "$certificate_last_day")
-                        days_left=$(((end_date - current_date) / 86400))
+            reachable=True
+        else
+            # Retry after 2 sec (maybe a network congestion)
+            sleep 2
+            timeout $timeout bash -c "(cat < /dev/null > /dev/tcp/$sitename/$port) 2>> $errlog_file"
+            if [ "$?" = 0 ];then
+                reachable=True
+            else
+                reachable=False
+            fi
+        fi
+        if [ "$reachable" ];then
+            HOST_CHECK_COMMAND="openssl s_client -servername ${sitename} -connect ${site}"
+            HOST_CHECK=$(echo | ${HOST_CHECK_COMMAND} 2>&- | openssl x509 -noout -subject -startdate -enddate -issuer 2>> ${errlog_file})
+            certificate_last_day=$(echo "$HOST_CHECK" | grep "notAfter" | cut -d "=" -f2-)
+            certificate_issued=$(echo "$HOST_CHECK" | grep "notBefore" | cut -d "=" -f2-)
+            issuer=$(echo "$HOST_CHECK" | grep "issuer" | cut -d "=" -f2-)
+            end_date=$(date +%s -d "$certificate_last_day")
+            days_left=$(((end_date - current_date) / 86400))
 
-			if [ "$days_left" -gt "$warning_days" ];then
+            if [ -z "$certificate_last_day" ];then
+			    	printf "${unknown_color}| %-25s | %-25s | %-25s | %-10s | %-8s | %-50s %s\n${end_of_color}" \
+                   	"$sitename" "n/a" "n/a" "n/a" "n/a" "Cannot read certificate"
+
+			elif [ "$days_left" -gt "$warning_days" ];then
 				printf "${ok_color}| %-25s | %-25s | %-25s | %-10s | %-8s | %-50s %s\n${end_of_color}" \
 				"$sitename" "$certificate_issued" "$certificate_last_day" "$days_left" "Ok" "$issuer"
 
