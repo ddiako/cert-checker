@@ -47,7 +47,7 @@ To launch the script in terminal mode:
 ```
 We get the following output in our terminal:
 
-![screenshot from 2018-02-11 20-33-06](https://user-images.githubusercontent.com/12804701/36077449-5f85d338-0f6b-11e8-991d-1ffef916d4b6.png)
+![screenshot from 2022-04-12 - console](/img/cert-checker-console.png)
 
 In HTML mode:
 ```bash
@@ -55,7 +55,7 @@ In HTML mode:
 ```
 We get the following output:
 
-![screenshot from 2018-02-11 20-29-44](https://user-images.githubusercontent.com/12804701/36077452-6c282e4c-0f6b-11e8-966b-f3d863298586.png)
+![screenshot from 2022-04-12 - html](/img/cert-checker-html.png)
 
 In HTML mode and sending the result to an email:
 ```bash
