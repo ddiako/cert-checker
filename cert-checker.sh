@@ -1,13 +1,16 @@
 #!/bin/bash
 #
-# Based on      : https://github.com/juliojsb/jota-cert-checker
-# 
-# Maintainer    : @ddiako
+# ----------------------------------------------------------------------------
+# | CERT_CHECKER                                          created by @ddiako |
+# | (https://github.com/ddiako/cert-checker)                                 |
+# ----------------------------------------------------------------------------
 #
-# Description   :Script to check SSL certificate expiration date of a list of sites. Recommended to use with a dark terminal theme to
-#                see the colors correctly. The terminal also needs to support 256 colors.
-# Dependencies  :openssl, mutt (if you use the mail option)
-# License       :GPLv3
+#
+# Inspired by   : juliojsb/jota-cert-checker
+# Description   : Script to check SSL certificate expiration date of a list of sites. Recommended to use with a dark terminal theme to
+#                 see the colors correctly. The terminal also needs to support 256 colors.
+# Dependencies  : openssl, mutt (if you use the mail option)
+# License       : GPLv3
 #
 
 #
@@ -65,9 +68,21 @@ html_mode(){
 	while read site;do
 		sitename=$(echo $site | cut -d ":" -f1)
 		port=$(echo $site | cut -d ":" -f2)
-        	timeout $timeout bash -c "(cat < /dev/null > /dev/tcp/$sitename/$port) >> $errlog_file"
-		if [ true ];then
-			HOST_CHECK_COMMAND="openssl s_client -servername ${sitename} -connect ${site}"
+        	timeout $timeout bash -c "(cat < /dev/null > /dev/tcp/$sitename/$port) 2>> $errlog_file"
+		if [ "$?" = 0 ];then
+                        reachable=True
+                else
+                        # Retry after 2 sec (maybe a network congestion)
+                        sleep 2
+                        timeout $timeout bash -c "(cat < /dev/null > /dev/tcp/$sitename/$port) 2>> $errlog_file"
+                        if [ "$?" = 0 ];then
+                                reachable=True
+                        else
+                                reachable=False
+                        fi
+                fi
+                if [ "$reachable" ];then
+                	HOST_CHECK_COMMAND="openssl s_client -servername ${sitename} -connect ${site}"
 			HOST_CHECK=$(echo | ${HOST_CHECK_COMMAND} 2>&- | openssl x509 -noout -subject -startdate -enddate -issuer)
 			certificate_last_day=$(echo "$HOST_CHECK" | grep "notAfter" | cut -d "=" -f2-)
 			echo -e "Site: $sitename\nNot after: $certificate_last_day"
@@ -144,8 +159,20 @@ terminal_mode(){
 	while read site;do
 		sitename=$(echo $site | cut -d ":" -f1)
 		port=$(echo $site | cut -d ":" -f2)
-		timeout $timeout bash -c "cat < /dev/null > /dev/tcp/$sitename/$port >> $errlog_file"
-		if [ true ];then
+		timeout $timeout bash -c "cat < /dev/null > /dev/tcp/$sitename/$port 2>> $errlog_file"
+		if [ "$?" = 0 ];then
+                        reachable=True
+                else
+                        # Retry after 2 sec (maybe a network congestion)
+                        sleep 2
+                        timeout $timeout bash -c "(cat < /dev/null > /dev/tcp/$sitename/$port) 2>> $errlog_file"
+                        if [ "$?" = 0 ];then
+                                reachable=True
+                        else
+                                reachable=False
+                        fi
+                fi
+                if [ "$reachable" ];then
 			HOST_CHECK_COMMAND="openssl s_client -servername ${sitename} -connect ${site}"
                         HOST_CHECK=$(echo | ${HOST_CHECK_COMMAND} 2>&- | openssl x509 -noout -subject -startdate -enddate -issuer)
 			certificate_last_day=$(echo "$HOST_CHECK" | grep "notAfter" | cut -d "=" -f2-)
