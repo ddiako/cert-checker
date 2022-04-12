@@ -50,8 +50,8 @@ html_mode(){
 			</head>
 			<body style="background-color: lightblue;">
 					<h1 style="color: navy;text-align: center;font-family: 'Helvetica Neue', sans-serif;font-size: 20px;font-weight: bold;">SSL Certs expiration checker</h1>
-					<a href="https://github.com/ddiako/jota-cert-checker" style="position: absolute; top: 0; right: 0px"><img loading="lazy" width="100" height="100" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png?resize=100%2C100" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
-			0~| %-25s1~		<table style="background-color: #C5E1E7;padding: 10px;box-shadow: 5px 10px 18px #888888;margin-left: auto ;margin-right: auto ;border: 1px solid black;">
+					<a href="https://github.com/ddiako/cert-checker" style="position: absolute; top: 0; right: 0px"><img loading="lazy" width="100" height="100" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png?resize=100%2C100" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+					<table style="background-color: #C5E1E7;padding: 10px;box-shadow: 5px 10px 18px #888888;margin-left: auto ;margin-right: auto ;border: 1px solid black;">
 					<tr style="padding: 8px;text-align: left;font-family: 'Helvetica Neue', sans-serif;">
 					<th style="padding: 8px;text-align: left;font-family: 'Helvetica Neue', sans-serif;font-weight: bold;">Site</th>
 					<th style="padding: 8px;text-align: left;font-family: 'Helvetica Neue', sans-serif;font-weight: bold;">Issued date</th>
@@ -91,7 +91,7 @@ html_mode(){
 			elif [ "$days_left" -le "$warning_days" ] && [ "$days_left" -gt "$alert_days" ];then
 				echo "<tr style=\"padding: 8px;text-align: left;font-family: 'Helvetica Neue', sans-serif;\">" >> $html_file
 				echo "<td style=\"padding: 8px;background-color: #FFE032;\">${sitename}</td>" >> $html_file
-				echo "<td style=\"padding: 8px;background-color: #33FF4F;\">${certificate_issued}</td>" >> $html_file
+				echo "<td style=\"padding: 8px;background-color: #FFE032;\">${certificate_issued}</td>" >> $html_file
 				echo "<td style=\"padding: 8px;background-color: #FFE032;\">${certificate_last_day}</td>" >> $html_file
 				echo "<td style=\"padding: 8px;background-color: #FFE032;\">${days_left}</td>" >> $html_file
 				echo "<td style=\"padding: 8px;background-color: #FFE032;\">Warning</td>" >> $html_file
@@ -101,7 +101,7 @@ html_mode(){
 			elif [ "$days_left" -le "$alert_days" ] && [ "$days_left" -gt 0 ];then
 				echo "<tr style=\"padding: 8px;text-align: left;font-family: 'Helvetica Neue', sans-serif;\">" >> $html_file
 				echo "<td style=\"padding: 8px;background-color: #FF8F32;\">${sitename}</td>" >> $html_file
-				echo "<td style=\"padding: 8px;background-color: #33FF4F;\">${certificate_issued}</td>" >> $html_file
+				echo "<td style=\"padding: 8px;background-color: #FF8F32;\">${certificate_issued}</td>" >> $html_file
 				echo "<td style=\"padding: 8px;background-color: #FF8F32;\">${certificate_last_day}</td>" >> $html_file
 				echo "<td style=\"padding: 8px;background-color: #FF8F32;\">${days_left}</td>" >> $html_file
 				echo "<td style=\"padding: 8px;background-color: #FF8F32;\">Alert</td>" >> $html_file
@@ -111,7 +111,7 @@ html_mode(){
 			elif [ "$days_left" -le 0 ];then
 				echo "<tr style=\"padding: 8px;text-align: left;font-family: 'Helvetica Neue', sans-serif;\">" >> $html_file
 				echo "<td style=\"padding: 8px;background-color: #EF3434;\">${sitename}</td>" >> $html_file
-				echo "<td style=\"padding: 8px;background-color: #33FF4F;\">${certificate_issued}</td>" >> $html_file
+				echo "<td style=\"padding: 8px;background-color: #EF3434;\">${certificate_issued}</td>" >> $html_file
 				echo "<td style=\"padding: 8px;background-color: #EF3434;\">${certificate_last_day}</td>" >> $html_file
 				echo "<td style=\"padding: 8px;background-color: #EF3434;\">${days_left}</td>" >> $html_file
 				echo "<td style=\"padding: 8px;background-color: #EF3434;\">Expired</td>" >> $html_file
@@ -121,7 +121,7 @@ html_mode(){
 		else
 			echo "<tr style=\"padding: 8px;text-align: left;font-family: 'Helvetica Neue', sans-serif;\">" >> $html_file
 			echo "<td style=\"padding: 8px;background-color: #999493;\">${sitename}</td>" >> $html_file
-			echo "<td style=\"padding: 8px;background-color: #33FF4F;\">n/a</td>" >> $html_file
+			echo "<td style=\"padding: 8px;background-color: #999493;\">n/a</td>" >> $html_file
 			echo "<td style=\"padding: 8px;background-color: #999493;\">n/a</td>" >> $html_file
 			echo "<td style=\"padding: 8px;background-color: #999493;\">n/a</td>" >> $html_file
 			echo "<td style=\"padding: 8px;background-color: #999493;\">Unknown</td>" >> $html_file
